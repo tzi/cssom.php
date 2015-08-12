@@ -1,5 +1,5 @@
 {
-    "name": "tzi/CSSOM.php",
+    "name": "tzi/cssom",
     "description": "CSS Object Model in PHP",
     "license": "MIT",
     "autoload": {

@@ -33,7 +33,7 @@ class CSSStyleSheet
     {
         $cssTextRules = $this->parseCSSTextRules($cssText);
         foreach ($cssTextRules as $cssTextRule) {
-            $this->cssRules[] = CSSRule::newInstance($cssTextRule, $this);
+            $this->cssRules[] = CSSRule::newInstance($cssTextRule['cssText'], $cssTextRule['position'], $this);
         }
         return $this;
     }
@@ -57,8 +57,10 @@ class CSSStyleSheet
                 }
                 $level--;
                 if ($level == 0) {
+                    $position = $this->getPosition($cssText, $buffer);
                     $caret++;
-                    $cssTextRules[] = substr($cssText, $buffer, $caret);
+                    $cssTextRule = substr($cssText, $buffer, $caret);
+                    $cssTextRules[] = ['cssText' => $cssTextRule, 'position' => $position];
                     $buffer = $caret;
                     continue;
                 }
@@ -81,7 +83,11 @@ class CSSStyleSheet
     protected function getPosition($cssText, $caret) {
         $beforeText = substr($cssText, 0, $caret);
         $line = substr_count($beforeText, PHP_EOL) + 1;
-        $col = $caret - strrpos($beforeText, PHP_EOL);
+        $col = $caret + 1;
+        $lastEOL = strrpos($beforeText, PHP_EOL);
+        if ($lastEOL !== false) {
+            $col = $col - $lastEOL - 1;
+        }
         return ['line' => $line, 'col' => $col];
     }
 }

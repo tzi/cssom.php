@@ -19,9 +19,9 @@ class CSSStyleRule extends CSSRule
 
     /* PUBLIC METHODS
      *************************************************************************/
-    public function __construct($cssText, $parent)
+    public function __construct($cssText, $position, $parent)
     {
-        parent::__construct($cssText, $parent);
+        parent::__construct($cssText, $position, $parent);
         $this->selectorText = $this->parseCSSSelector($cssText);
         $this->style = $this->parseCSSStyle($cssText);
     }

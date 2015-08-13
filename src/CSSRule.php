@@ -25,6 +25,11 @@ abstract class CSSRule
     public $cssText;
 
     /**
+     * @var array
+     */
+    public $position;
+
+    /**
      * @readonly
      * @var CSSRule
      */
@@ -34,12 +39,13 @@ abstract class CSSRule
      * @readonly
      * @var CSSStyleSheet
      */
-    public $parentStyleSheet; // readonly
+    public $parentStyleSheet;
 
 
-    public function __construct($cssText, $parent)
+    public function __construct($cssText, $position, $parent)
     {
         $this->cssText = $cssText;
+        $this->position = $position;
         if (is_a($parent, get_class())) {
             $this->parentRule = $parent;
         } else if (is_a($parent, 'CSSOM\\CSSDocument')) {
@@ -47,9 +53,9 @@ abstract class CSSRule
         }
     }
 
-    static public function newInstance($cssText, $parent)
+    static public function newInstance($cssText, $position, $parent)
     {
-        return new CSSStyleRule($cssText, $parent);
+        return new CSSStyleRule($cssText, $position, $parent);
     }
 }
 

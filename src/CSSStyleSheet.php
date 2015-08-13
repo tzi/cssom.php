@@ -44,29 +44,30 @@ class CSSStyleSheet
     protected function parseCSSTextRules($cssText)
     {
         $cssTextRules = [];
-        $buffer = $cssText;
+        $buffer = 0;
         $level = 0;
         $caret = 0;
-        while ($caret < strlen($buffer)) {
-            if ($buffer[$caret] == '}') {
+        while ($caret < strlen($cssText)) {
+            if ($cssText[$caret] == '}') {
                 if ($level == 0) {
-                    $this->addError('Closing bracket without an opening one.', $cssText, strlen($cssText) - strlen($buffer) + $caret);
+                    $this->addError('Closing bracket without an opening one.', $cssText, $caret);
                     $caret++;
+                    $buffer = $caret;
                     continue;
                 }
                 $level--;
                 if ($level == 0) {
-                    $cssTextRules[] = substr($buffer, 0, $caret + 1);
-                    $buffer = substr($buffer, $caret + 1);
-                    $caret = 0;
+                    $caret++;
+                    $cssTextRules[] = substr($cssText, $buffer, $caret);
+                    $buffer = $caret;
                     continue;
                 }
-            } else if ($buffer[$caret] == '{') {
+            } else if ($cssText[$caret] == '{') {
                 $level++;
             }
             $caret++;
         }
-        if (trim($buffer) != '') {
+        if (trim(substr($cssText, $buffer)) != '') {
             $this->addError('Missing closing bracket.', $cssText, strlen($cssText));
         }
         return $cssTextRules;

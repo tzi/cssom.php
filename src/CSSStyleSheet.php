@@ -45,7 +45,8 @@ class CSSStyleSheet
     {
         $cssTextRules = [];
         $buffer = 0;
-        $level = 0;
+        $bracketLevel = 0;
+        $parenthesisLevel = 0;
         $caret = 0;
         $startingQuoteList = ['"', "'"];
         $endingQuoteList = ['"', "'"];
@@ -54,14 +55,14 @@ class CSSStyleSheet
         while ($caret < strlen($cssText)) {
             if (is_null($currentQuoteIndex)) {
                 if ($cssText[$caret] == '}') {
-                    if ($level == 0) {
+                    if ($bracketLevel == 0) {
                         $this->addError('Closing bracket without an opening one.', $cssText, $caret);
                         $caret++;
                         $buffer = $caret;
                         continue;
                     }
-                    $level--;
-                    if ($level == 0) {
+                    $bracketLevel--;
+                    if ($bracketLevel == 0) {
                         $position = $this->getPosition($cssText, $buffer);
                         $caret++;
                         $cssTextRule = substr($cssText, $buffer, $caret);
@@ -70,7 +71,17 @@ class CSSStyleSheet
                         continue;
                     }
                 } else if ($cssText[$caret] == '{') {
-                    $level++;
+                    $bracketLevel++;
+                } else if ($cssText[$caret] == ')') {
+                    if ($parenthesisLevel == 0) {
+                        $this->addError('Closing parenthesis without an opening one.', $cssText, $caret);
+                        $caret++;
+                        $buffer = $caret;
+                        continue;
+                    }
+                    $parenthesisLevel--;
+                } else if ($cssText[$caret] == '(') {
+                    $parenthesisLevel++;
                 } else if ($quoteIndex = array_search($cssText[$caret], $startingQuoteList)) {
                     $currentQuoteIndex = $quoteIndex;
                     $quoteCaret = $caret;
@@ -83,8 +94,11 @@ class CSSStyleSheet
         if (!is_null($currentQuoteIndex)) {
             $this->addError('Missing closing quote '.$currentQuoteIndex, $cssText, $quoteCaret);
         }
-        if (trim(substr($cssText, $buffer)) != '') {
+        if ($bracketLevel > 0) {
             $this->addError('Missing closing bracket.', $cssText, strlen($cssText));
+        }
+        if ($parenthesisLevel > 0) {
+            $this->addError('Missing closing parenthesis.', $cssText, strlen($cssText));
         }
         return $cssTextRules;
     }

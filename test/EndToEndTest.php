@@ -50,10 +50,23 @@ class EndToEndTest extends \PHPUnit_Framework_TestCase
     {
         $cssText = file_get_contents(__DIR__.'/resources/errorMissingQuote.css');
         $cssStyleSheet = (new CSSStyleSheet)->parse($cssText);
-        $this->assertCount(2, $cssStyleSheet->errors, 'Number of parsing errors');
+        $this->assertCount(3, $cssStyleSheet->errors, 'Number of parsing errors');
         $this->assertCount(1, $cssStyleSheet->cssRules, 'Number of rules parsed');
         $this->assertEquals(5, $cssStyleSheet->errors[0]['line'], 'Error line');
         $this->assertEquals(21, $cssStyleSheet->errors[0]['col'], 'Error column');
+        $this->assertEquals('html', trim($cssStyleSheet->cssRules[0]->selectorText));
+        $this->assertEquals('top: 0;', trim($cssStyleSheet->cssRules[0]->style));
+    }
+
+    public function testErrorMissingParenthesis()
+    {
+        $cssText = file_get_contents(__DIR__.'/resources/errorMissingParenthesis.css');
+        $cssStyleSheet = (new CSSStyleSheet)->parse($cssText);
+        var_dump($cssStyleSheet->cssRules);
+        $this->assertCount(1, $cssStyleSheet->errors, 'Number of parsing errors');
+        $this->assertCount(1, $cssStyleSheet->cssRules, 'Number of rules parsed');
+        $this->assertEquals(7, $cssStyleSheet->errors[0]['line'], 'Error line');
+        $this->assertEquals(1, $cssStyleSheet->errors[0]['col'], 'Error column');
         $this->assertEquals('html', trim($cssStyleSheet->cssRules[0]->selectorText));
         $this->assertEquals('top: 0;', trim($cssStyleSheet->cssRules[0]->style));
     }

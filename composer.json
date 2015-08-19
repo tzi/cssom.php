@@ -6,5 +6,8 @@
         "psr-4": {
             "CSSOM\\": "src"
         }
+    },
+    "require": {
+        "hoa/compiler": "2.15.05.29"
     }
 }
